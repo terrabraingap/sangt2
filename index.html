@@ -1,0 +1,1924 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>편의점 아포칼립스 영업비밀 계산기</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <!-- PWA Manifest & Theme -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#2c3a47">
+  <link rel="apple-touch-icon" href="/icon-192x192.png">
+
+  <!-- React via CDN -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+
+  <style>
+    :root {
+      --primary-dark: #2c3a47;
+      --primary-medium: #4a6582;
+      --accent-color: #5dade2;
+      --bg-main: #f0f2f5;
+      --bg-card: #ffffff;
+      --text-light: #ffffff;
+      --text-dark: #333333;
+      --text-secondary: #666;
+      --border-color: #dfe4ea;
+      --success-color: #2ecc71;
+      --danger-color: #e74c3c;
+      --info-color: #3498db;
+      --warning-color-soft: rgba(243, 156, 18, 0.1);
+      --warning-border-color: #f39c12;
+      --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      --border-radius: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-dark);
+      line-height: 1.6;
+    }
+
+    #root {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+
+    .app-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .header {
+      background: var(--primary-dark);
+      color: var(--text-light);
+      padding: 1.5rem;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      position: relative;
+    }
+
+    .header h1 {
+      font-size: 1.8rem;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    .version-info {
+      position: absolute;
+      top: 1rem;
+      right: 1.5rem;
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.7);
+      text-align: right;
+      line-height: 1.4;
+    }
+
+    .version-info span {
+      display: block;
+    }
+
+    .nav-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .tab-button {
+      background: var(--primary-medium);
+      color: var(--text-light);
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: background-color 0.3s ease;
+    }
+
+    .tab-button:hover {
+      background-color: var(--accent-color);
+    }
+
+    .tab-button.active {
+      background-color: var(--accent-color);
+      box-shadow: 0 0 10px rgba(93, 173, 226, 0.5);
+    }
+
+    .card {
+      background-color: var(--bg-card);
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      padding: 1.5rem;
+      width: 100%;
+    }
+
+    .card h2 {
+      color: var(--primary-dark);
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--accent-color);
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-group label {
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
+
+    .input, .select {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 1rem;
+      transition: border-color 0.3s, box-shadow 0.3s, background-color 0.3s;
+    }
+
+    .input:focus, .select:focus {
+      outline: none;
+      border-color: var(--accent-color);
+      box-shadow: 0 0 5px rgba(93, 173, 226, 0.3);
+    }
+
+    .input.input-invalid {
+        background-color: var(--warning-color-soft);
+        border-color: var(--warning-border-color);
+    }
+
+
+    .image-preview {
+        margin-top: 1rem;
+        max-width: 100%;
+        height: auto;
+        border-radius: var(--border-radius);
+        border: 1px solid var(--border-color);
+    }
+
+    .button {
+      background-color: var(--primary-medium);
+      color: var(--text-light);
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 700;
+      transition: background-color 0.3s ease, opacity 0.3s ease;
+      width: 100%;
+    }
+
+    .button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .button:hover:not(:disabled) {
+      background-color: var(--primary-dark);
+    }
+
+    .button-primary {
+      background-color: var(--accent-color);
+    }
+    .button-primary:hover:not(:disabled) {
+      background-color: #4ca8e0;
+    }
+
+    .button-danger {
+      background-color: var(--danger-color);
+      font-size: 0.8rem;
+      padding: 0.4rem 0.8rem;
+    }
+    .button-danger:hover:not(:disabled) {
+        background-color: #c0392b;
+    }
+
+    .item-list, .related-filters {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .item-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .related-filters {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 0.5rem 1rem;
+    }
+
+    .filter-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: #f0f0f0;
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .filter-checkbox:hover {
+        background-color: #e0e0e0;
+    }
+    .filter-checkbox input {
+        cursor: pointer;
+    }
+
+
+    .calculator-view {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (min-width: 1024px) {
+      .calculator-view {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      .form-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem 1.5rem;
+      }
+      .form-group:has(.item-list),
+      .form-group:has(.image-preview) {
+        grid-column: 1 / -1;
+      }
+    }
+
+    @media (min-width: 1280px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+        .form-group:has(.item-list),
+        .form-group:has(.image-preview) {
+          grid-column: auto;
+        }
+    }
+
+    .results-card .result-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .results-card .result-item:last-child {
+      border-bottom: none;
+    }
+    .results-card .result-item span:first-child {
+      font-weight: 500;
+    }
+    .results-card .result-item span:last-child {
+      font-weight: 700;
+      color: var(--primary-dark);
+    }
+    .results-card .efficiency-good {
+      color: var(--success-color);
+    }
+    .results-card .efficiency-bad {
+      color: var(--danger-color);
+    }
+
+    .table-container {
+        overflow-x: auto;
+        margin-top: 1rem;
+    }
+
+    .db-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .db-table th, .db-table td {
+      padding: 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+      vertical-align: middle;
+    }
+
+    .db-table th {
+      background-color: #f8f9fa;
+      font-weight: 700;
+    }
+
+    .db-table tr:hover {
+      background-color: #f1f3f5;
+    }
+
+    .db-table td {
+      font-size: 0.9rem;
+    }
+
+    .db-image {
+        max-width: 80px;
+        max-height: 80px;
+        object-fit: cover;
+        border-radius: 4px;
+    }
+
+    .db-table .efficiency-good {
+      color: var(--success-color);
+      font-weight: 700;
+    }
+    .db-table .efficiency-bad {
+      color: var(--danger-color);
+      font-weight: 700;
+    }
+
+    .items-cell {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        min-width: 200px;
+        word-break: keep-all;
+    }
+
+    .non-quantifiable-item-text {
+        color: var(--danger-color);
+        font-weight: 500;
+    }
+
+    .related-package-item {
+        background-color: #fafafa;
+        border: 1px solid var(--border-color);
+        padding: 1rem;
+        border-radius: var(--border-radius);
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+    .related-package-item h4 {
+        margin-bottom: 0;
+        display: flex;
+        align-items: baseline;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+    }
+
+    .related-package-item .result-item {
+        border: none;
+        padding: 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+
+    /* Styles for efficiency badge in related packages */
+    .related-package-item .efficiency-max,
+    .results-card .efficiency-max,
+    .db-table .efficiency-max {
+        color: #1abc9c;
+        font-weight: 700;
+    }
+
+    .related-package-item .efficiency-max,
+    .related-package-item .efficiency-good,
+    .related-package-item .efficiency-bad {
+        color: var(--text-light);
+        padding: 0.25rem 0.6rem;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        line-height: 1;
+    }
+    .related-package-item .efficiency-max {
+        background-color: #1abc9c; /* A slightly different green for MAX */
+    }
+    .related-package-item .efficiency-good {
+        background-color: var(--success-color);
+    }
+
+    .related-package-item .efficiency-bad {
+        background-color: var(--danger-color);
+    }
+
+    .related-package-image {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 4px;
+        flex-shrink: 0;
+        background-color: #f0f0f0;
+    }
+
+    .related-package-content {
+        flex-grow: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .efficiency-higher {
+        background-color: rgba(46, 204, 113, 0.15);
+        color: #27ae60;
+        font-weight: 700;
+        font-size: 0.85rem;
+        margin-left: 0.5rem;
+        padding: 0.2rem 0.7rem;
+        border-radius: 12px;
+    }
+
+    .efficiency-lower {
+        background-color: rgba(231, 76, 60, 0.1);
+        color: var(--danger-color);
+        font-weight: 700;
+        font-size: 0.85rem;
+        margin-left: 0.5rem;
+        padding: 0.2rem 0.7rem;
+        border-radius: 12px;
+    }
+
+    .related-package-header, .db-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .db-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+
+    .related-package-header h2, .db-header h2 {
+        margin-bottom: 0;
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .sort-buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
+    .sort-buttons button {
+        font-size: 0.8rem;
+        padding: 0.25rem 0.5rem;
+        width: auto;
+    }
+
+    .settings-view {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1rem;
+    }
+
+    .settings-footer {
+        margin-top: 1.5rem;
+        text-align: right;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        line-height: 1.4;
+    }
+
+    .settings-footer p {
+        margin: 0;
+    }
+
+    .placeholder {
+      text-align: center;
+      color: var(--text-secondary);
+      padding: 2rem;
+      border: 2px dashed var(--border-color);
+      border-radius: var(--border-radius);
+    }
+
+    .input-with-buttons {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .input-with-buttons .input {
+      flex-grow: 1;
+    }
+
+    .button.button-outline {
+      background-color: transparent;
+      border: 1px solid var(--primary-medium);
+      color: var(--primary-medium);
+      width: auto;
+      flex-shrink: 0;
+      font-size: 0.9rem;
+      padding: 0.65rem 1rem;
+    }
+
+    .button.button-outline:hover:not(:disabled) {
+      background-color: var(--primary-medium);
+      color: var(--text-light);
+    }
+
+    .button.button-outline.active {
+      background-color: var(--primary-dark);
+      border-color: var(--primary-dark);
+      color: var(--text-light);
+    }
+
+    .section-divider {
+      border: 0;
+      height: 1px;
+      background-color: var(--border-color);
+      margin: 0.5rem 0;
+    }
+
+    .filter-description {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-top: -0.25rem;
+      margin-bottom: 0;
+    }
+
+    .filter-description.sub-description {
+      font-size: 0.75rem;
+      margin-top: 0.25rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .filter-controls-container {
+        margin-top: 1.5rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .filter-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .filter-header label {
+        font-weight: 500;
+        margin-bottom: 0;
+    }
+
+    .comprehensive-search-label {
+        font-size: 0.9rem;
+        font-weight: normal;
+        background: none;
+        padding: 0;
+    }
+    .comprehensive-search-label:hover {
+        background: none;
+    }
+
+    /* Toast Notification Styles */
+    .toast-container {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        pointer-events: none;
+    }
+
+    .toast {
+        color: var(--text-light);
+        padding: 12px 20px;
+        border-radius: 6px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.3s ease, transform 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        pointer-events: auto;
+    }
+
+    .toast-container.visible .toast {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .toast.success {
+        background-color: var(--success-color);
+    }
+
+    .toast.error {
+        background-color: var(--danger-color);
+    }
+
+    .toast.info {
+        background-color: var(--info-color);
+    }
+
+    .toast-dismiss {
+        background: none;
+        border: none;
+        color: inherit;
+        font-size: 20px;
+        font-weight: bold;
+        line-height: 1;
+        opacity: 0.7;
+        cursor: pointer;
+        padding: 0 0 2px 0;
+    }
+    .toast-dismiss:hover {
+        opacity: 1;
+    }
+
+    /* Modal Styles */
+    .modal-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.6);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 2000;
+    }
+
+    .modal-content {
+        background: var(--bg-card);
+        padding: 2rem;
+        border-radius: var(--border-radius);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        width: 90%;
+        max-width: 450px;
+        text-align: center;
+    }
+
+    .modal-content .modal-title {
+        font-size: 1.4rem;
+        color: var(--primary-dark);
+        margin-bottom: 1rem;
+    }
+
+    .modal-message {
+        font-size: 1.1rem;
+        margin-bottom: 1.5rem;
+        line-height: 1.5;
+    }
+
+    .modal-content .modal-warning {
+        background-color: rgba(231, 76, 60, 0.1);
+        border-left: 4px solid var(--danger-color);
+        color: var(--text-dark);
+        padding: 1rem;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        margin-top: -0.5rem;
+        margin-bottom: 1.5rem;
+        text-align: left;
+    }
+
+    .modal-actions {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+    }
+
+    .modal-actions .button {
+        width: auto;
+        min-width: 100px;
+    }
+  </style>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.1.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.1.0/"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module">
+    const { useState, useEffect, useMemo, useCallback, useRef } = React;
+
+    // --- CONSTANTS ---
+    const DATA_VERSION = 2; // Increment this when data structure changes
+    const CURRENCY_ITEMS = {
+        juhwa: '주화',
+        quartz: '쿼츠',
+        relicBinary: '렐릭 바이너리 (렐바)',
+        setBinary: '세트 바이너리 (셋바)',
+        tuningBinary: '튜닝 바이너리 (튜바)',
+        simTicket: '기채권',
+        recruitCoupon: '채용권',
+        specialCore: '특수융합핵 (특융핵)',
+        fusionCore: '융합핵'
+    };
+
+    const PRICE_CURRENCIES = {
+        KRW: '현금 (KRW)',
+        juhwa: '주화',
+        quartz: '쿼츠'
+    };
+
+    const DEFAULT_RATES = {
+        krwPerJuhwa: 15,
+        quartzPerJuhwa: 2,
+        relicBinaryInJuhwa: 26.4,
+        setBinaryInJuhwa: 15,
+        tuningBinaryInJuhwa: 3.1,
+        simTicketInJuhwa: 10,
+        recruitCouponInJuhwa: 75, // 150 쿼츠
+        specialCoreInJuhwa: 300,
+        fusionCoreInJuhwa: 59,
+    };
+
+    // --- HELPER FUNCTIONS ---
+    function generateId() {
+        return Date.now().toString(36) + Math.random().toString(36).substr(2);
+    }
+
+    function formatNumber(num) {
+        if (typeof num !== 'number' || isNaN(num)) return '0';
+        return num.toLocaleString('ko-KR', { maximumFractionDigits: 2 });
+    }
+
+    function formatEfficiency(efficiency) {
+        if (efficiency === Infinity) return 'MAX';
+        return `${formatNumber(efficiency)}%`;
+    }
+
+    function resizeImage(file, maxWidth, maxHeight, quality) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                if (!event.target || typeof event.target.result !== 'string') {
+                    return reject(new Error('Failed to read file as data URL'));
+                }
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > maxWidth) {
+                            height *= maxWidth / width;
+                            width = maxWidth;
+                        }
+                    } else {
+                        if (height > maxHeight) {
+                            width *= maxHeight / height;
+                            height = maxHeight;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    resolve(canvas.toDataURL('image/jpeg', quality));
+                };
+                img.onerror = reject;
+                img.src = event.target.result;
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    }
+
+    const getSortableDate = (dateString) => {
+        if (dateString === '상시') return Number.MAX_SAFE_INTEGER;
+        if (dateString === '준상시') return Number.MAX_SAFE_INTEGER - 1;
+        const date = new Date(dateString).getTime();
+        return isNaN(date) ? -Infinity : date;
+    };
+
+    function filterAndSortPackages({ packages, filters, comprehensive, sortMethod }) {
+        const activeFilters = Object.keys(filters).filter(key => filters[key]);
+
+        const filtered = packages.filter(pkg => {
+            if (activeFilters.length === 0) return true;
+
+            const pkgItemTypes = new Set(pkg.items.map(item => item.type));
+            
+            if (comprehensive) {
+                // Inclusive search: package must contain all selected filters
+                return activeFilters.every(filterType => pkgItemTypes.has(filterType));
+            } else {
+                // Exact match: package items must be identical to selected filters
+                if (pkgItemTypes.size !== activeFilters.length) return false;
+                return activeFilters.every(filterType => pkgItemTypes.has(filterType));
+            }
+        });
+
+        // Use spread to create a shallow copy before sorting to avoid mutating the original array
+        return [...filtered].sort((a, b) => {
+            if (sortMethod === 'efficiency') {
+                return b.efficiency - a.efficiency;
+            }
+            // Default to 'date' sort
+            const dateA = getSortableDate(a.saleDate);
+            const dateB = getSortableDate(b.saleDate);
+            return dateB - dateA;
+        });
+    }
+
+
+    // --- CUSTOM HOOK for LocalStorage ---
+    function useLocalStorage(key, initialValue) {
+        const [storedValue, setStoredValue] = useState(() => {
+            try {
+                const item = window.localStorage.getItem(key);
+                return item ? JSON.parse(item) : initialValue;
+            } catch (error) {
+                console.error(error);
+                return initialValue;
+            }
+        });
+
+        const setValue = (value) => {
+            try {
+                const valueToStore = value instanceof Function ? value(storedValue) : value;
+                setStoredValue(valueToStore);
+                window.localStorage.setItem(key, JSON.stringify(valueToStore));
+            } catch (error) {
+                console.error(error);
+                // Re-throw the error so calling components can handle it (e.g., QuotaExceededError)
+                throw error;
+            }
+        };
+
+        return [storedValue, setValue];
+    }
+
+    // --- CALCULATION LOGIC ---
+    function calculateJuhwaValue(item, rates) {
+        let totalJuhwaValue = 0;
+        if(item.priceCurrency) { // It's a price item
+            switch(item.priceCurrency) {
+                case 'KRW':
+                    totalJuhwaValue = rates.krwPerJuhwa > 0 ? item.priceAmount / rates.krwPerJuhwa : 0;
+                    break;
+                case 'juhwa':
+                    totalJuhwaValue = item.priceAmount;
+                    break;
+                case 'quartz':
+                    totalJuhwaValue = rates.quartzPerJuhwa > 0 ? item.priceAmount / rates.quartzPerJuhwa : 0;
+                    break;
+            }
+        } else { // It's a package content item
+            switch (item.type) {
+                case 'juhwa': totalJuhwaValue = item.quantity; break;
+                case 'quartz': totalJuhwaValue = rates.quartzPerJuhwa > 0 ? item.quantity / rates.quartzPerJuhwa : 0; break;
+                case 'relicBinary': totalJuhwaValue = item.quantity * rates.relicBinaryInJuhwa; break;
+                case 'setBinary': totalJuhwaValue = item.quantity * rates.setBinaryInJuhwa; break;
+                case 'tuningBinary': totalJuhwaValue = item.quantity * rates.tuningBinaryInJuhwa; break;
+                case 'simTicket': totalJuhwaValue = item.quantity * rates.simTicketInJuhwa; break;
+                case 'recruitCoupon': totalJuhwaValue = item.quantity * rates.recruitCouponInJuhwa; break;
+                case 'specialCore': totalJuhwaValue = item.quantity * rates.specialCoreInJuhwa; break;
+                case 'fusionCore': totalJuhwaValue = item.quantity * rates.fusionCoreInJuhwa; break;
+            }
+        }
+        return totalJuhwaValue;
+    }
+
+    // --- UI COMPONENTS ---
+
+    const PackageContents = ({ items, nonQuantifiableItems }) => {
+        const children = [];
+        const quantifiableItems = items.filter(i => i && typeof i.quantity === 'number' && i.quantity > 0);
+
+        if (quantifiableItems.length > 0) {
+            quantifiableItems.forEach((item, index) => {
+                children.push(`${CURRENCY_ITEMS[item.type]} ${formatNumber(item.quantity)}개`);
+                if (index < quantifiableItems.length - 1) {
+                    children.push(', ');
+                }
+            });
+        }
+
+        if (nonQuantifiableItems && nonQuantifiableItems.trim()) {
+            if (children.length > 0) {
+                children.push(', ');
+            }
+            const spanProps = { key: 'nq-item', className: 'non-quantifiable-item-text' };
+            children.push(React.createElement('span', spanProps, nonQuantifiableItems));
+        }
+
+        if (children.length === 0) {
+            return '-';
+        }
+
+        return React.createElement('span', null, ...children);
+    };
+
+
+    const ToastContainer = ({ toast, onDismiss }) => {
+        if (!toast) return null;
+        return React.createElement('div', { className: `toast-container ${toast ? 'visible' : ''}` },
+            React.createElement('div', { className: `toast ${toast.type}` },
+                toast.message,
+                React.createElement('button', { className: 'toast-dismiss', onClick: onDismiss }, '×')
+            )
+        );
+    };
+
+    const ConfirmModal = ({ isOpen, message, onConfirm, onCancel }) => {
+        if (!isOpen) return null;
+
+        return React.createElement('div', { className: 'modal-backdrop' },
+            React.createElement('div', { className: 'modal-content' },
+                React.createElement('p', { className: 'modal-message' }, message),
+                React.createElement('div', { className: 'modal-actions' },
+                    React.createElement('button', { className: 'button button-outline', onClick: onCancel }, '취소'),
+                    React.createElement('button', { className: 'button button-danger', onClick: onConfirm }, '삭제')
+                )
+            )
+        );
+    };
+
+    const ImportConfirmModal = ({ isOpen, onMerge, onReplace, onCancel }) => {
+        if (!isOpen) return null;
+
+        return React.createElement('div', { className: 'modal-backdrop' },
+            React.createElement('div', { className: 'modal-content' },
+                React.createElement('h3', { className: 'modal-title' }, '데이터 가져오기'),
+                React.createElement('p', { className: 'modal-message' }, '선택한 파일의 데이터를 현재 데이터베이스와 병합하거나, 완전히 교체할 수 있습니다.'),
+                React.createElement('p', { className: 'modal-warning' }, '주의: "교체"는 현재 저장된 모든 데이터를 삭제합니다.'),
+                React.createElement('div', { className: 'modal-actions' },
+                    React.createElement('button', { className: 'button', onClick: onMerge }, '병합'),
+                    React.createElement('button', { className: 'button button-danger', onClick: onReplace }, '교체'),
+                    React.createElement('button', { className: 'button button-outline', onClick: onCancel }, '취소')
+                )
+            )
+        );
+    };
+
+
+    const Header = ({ currentView, setCurrentView }) => {
+        return React.createElement('header', { className: 'header' },
+            React.createElement('div', { className: 'version-info' },
+                React.createElement('span', null, 'Version: 1.0.1'),
+                React.createElement('span', null, 'Last Updated: 2025.7.7')
+            ),
+            React.createElement('h1', null, '편의점 아포칼립스 영업비밀 계산기'),
+            React.createElement('nav', { className: 'nav-tabs' },
+                React.createElement('button', {
+                    className: `tab-button ${currentView === 'calculator' ? 'active' : ''}`,
+                    onClick: () => setCurrentView('calculator')
+                }, '계산기'),
+                React.createElement('button', {
+                    className: `tab-button ${currentView === 'database' ? 'active' : ''}`,
+                    onClick: () => setCurrentView('database')
+                }, '데이터베이스'),
+                React.createElement('button', {
+                    className: `tab-button ${currentView === 'settings' ? 'active' : ''}`,
+                    onClick: () => setCurrentView('settings')
+                }, '설정')
+            )
+        );
+    };
+
+    const SettingsView = ({ rates, onSave, isUpdatingDb }) => {
+        const [localRates, setLocalRates] = useState(() => 
+            Object.entries(rates).reduce((acc, [key, value]) => {
+                acc[key] = String(value);
+                return acc;
+            }, {})
+        );
+
+        const handleChange = (key, value) => {
+            setLocalRates(prev => ({ ...prev, [key]: value }));
+        };
+
+        const handleSave = () => {
+            const parsedRates = {};
+            for (const key in localRates) {
+                parsedRates[key] = parseFloat(localRates[key]) || 0;
+            }
+            onSave(parsedRates);
+        };
+
+        const getLabelText = (key) => {
+            if (key === 'krwPerJuhwa') return '1 주화의 현금(KRW) 가치';
+            if (key === 'quartzPerJuhwa') return '1 주화 당 쿼츠 개수';
+            const itemKey = key.replace('InJuhwa', '');
+            return `1 ${CURRENCY_ITEMS[itemKey]} 의 주화 가치`;
+        };
+
+        return React.createElement('div', { className: 'card' },
+            React.createElement('h2', null, '재화 가치 설정 (정가 기준)'),
+            React.createElement('div', { className: 'settings-view' },
+                Object.keys(DEFAULT_RATES).map(key => React.createElement('div', { key, className: 'form-group' },
+                    React.createElement('label', null, getLabelText(key)),
+                    React.createElement('input', {
+                        type: 'text',
+                        inputMode: 'decimal',
+                        className: 'input',
+                        value: localRates[key],
+                        onChange: (evt) => handleChange(key, evt.target.value)
+                    })
+                ))
+            ),
+            React.createElement('button', { 
+                className: 'button button-primary', 
+                style: {marginTop: '1.5rem'}, 
+                onClick: handleSave,
+                disabled: isUpdatingDb
+            }, isUpdatingDb ? '업데이트 중...' : '설정 저장'),
+            React.createElement('div', { className: 'settings-footer' },
+                React.createElement('p', null, 'Made by 이하늘'),
+                React.createElement('p', null, 'Special Thanks: Gemini')
+            )
+        );
+    };
+
+    const FilterControls = ({
+        filters,
+        onFilterChange,
+        comprehensiveSearch,
+        onComprehensiveSearchChange
+    }) => {
+        return React.createElement('div', null,
+            React.createElement('div', { className: 'filter-header' },
+                React.createElement('label', null, '구성품 필터'),
+                React.createElement('label', { className: 'filter-checkbox comprehensive-search-label' },
+                    React.createElement('input', { type: 'checkbox', checked: comprehensiveSearch, onChange: onComprehensiveSearchChange }),
+                    ' 포괄 검색'
+                )
+            ),
+            React.createElement('p', { className: 'filter-description' }, '기본: 선택한 재화와 정확히 일치하는 구성의 패키지만 표시합니다.'),
+            React.createElement('p', { className: 'filter-description sub-description' }, '우측 포괄 검색 체크 시: 선택한 재화를 포함하는 모든 패키지를 검색합니다.'),
+            React.createElement('div', { className: 'related-filters' },
+                Object.keys(CURRENCY_ITEMS).map(type => React.createElement('label', { key: `filter-${type}`, className: 'filter-checkbox' },
+                    React.createElement('input', { type: 'checkbox', checked: !!filters[type], onChange: () => onFilterChange(type) }),
+                    ` ${CURRENCY_ITEMS[type]}`
+                ))
+            )
+        );
+    };
+
+    const SortControls = ({ sortMethod, setSortMethod }) => {
+        return React.createElement('div', { className: 'sort-buttons' },
+            React.createElement('button', { className: `button ${sortMethod === 'efficiency' ? 'active' : ''}`, onClick: () => setSortMethod('efficiency') }, '효율순'),
+            React.createElement('button', { className: `button ${sortMethod === 'date' ? 'active' : ''}`, onClick: () => setSortMethod('date') }, '최신순')
+        );
+    };
+
+    const DatabaseView = ({ database, setDatabase, showToast }) => {
+        const [filters, setFilters] = useState({});
+        const [comprehensiveSearch, setComprehensiveSearch] = useState(false);
+        const [sortMethod, setSortMethod] = useState('date');
+        const [modalState, setModalState] = useState({ isOpen: false, itemToDelete: null });
+        const [importModalState, setImportModalState] = useState({ isOpen: false, importedData: null });
+        const importFileRef = useRef(null);
+
+        const handleFilterChange = useCallback((type) => {
+            setFilters(prev => ({ ...prev, [type]: !prev[type] }));
+        }, []);
+        
+        const handleComprehensiveSearchChange = useCallback(() => {
+            setComprehensiveSearch(prev => !prev);
+        }, []);
+
+        const handleDeleteClick = (id) => {
+            setModalState({ isOpen: true, itemToDelete: id });
+        };
+
+        const handleConfirmDelete = () => {
+            if (modalState.itemToDelete) {
+                setDatabase(db => db.filter(item => item.id !== modalState.itemToDelete));
+            }
+            setModalState({ isOpen: false, itemToDelete: null });
+        };
+
+        const handleCancelDelete = () => {
+            setModalState({ isOpen: false, itemToDelete: null });
+        };
+
+        const handleExport = useCallback(() => {
+            if (database.length === 0) {
+                showToast('내보낼 데이터가 없습니다.', 'error');
+                return;
+            }
+            try {
+                const jsonString = JSON.stringify(database, null, 2);
+                const blob = new Blob([jsonString], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                const today = new Date().toISOString().slice(0, 10);
+                link.href = url;
+                link.download = `cs-calc-database-${today}.json`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                showToast('데이터베이스를 파일로 내보냈습니다.');
+            } catch (error) {
+                showToast('데이터 내보내기에 실패했습니다.', 'error');
+                console.error('Export failed:', error);
+            }
+        }, [database, showToast]);
+
+        const handleImportClick = () => {
+            importFileRef.current?.click();
+        };
+        
+        const handleFileSelected = (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const text = e.target.result;
+                    if (typeof text !== 'string') {
+                        showToast('파일을 읽는 중 오류가 발생했습니다.', 'error');
+                        return;
+                    }
+                    const data = JSON.parse(text);
+                    // Basic validation
+                    if (Array.isArray(data) && (data.length === 0 || (data[0].id && data[0].efficiency !== undefined))) {
+                         setImportModalState({ isOpen: true, importedData: data });
+                    } else {
+                        showToast('유효하지 않은 파일 형식입니다.', 'error');
+                    }
+                } catch (error) {
+                    showToast('파일을 읽는 중 오류가 발생했습니다.', 'error');
+                    console.error('Import file read error:', error);
+                } finally {
+                    // Reset file input value to allow re-importing the same file
+                    if(event.target) event.target.value = null;
+                }
+            };
+            reader.readAsText(file);
+        };
+
+        const handleImportConfirm = (mode) => { // mode is 'merge' or 'replace'
+            const { importedData } = importModalState;
+            if (!importedData) return;
+
+            if (mode === 'merge') {
+                const existingIds = new Set(database.map(p => p.id));
+                const newPackages = importedData.filter(p => !existingIds.has(p.id));
+                const mergedDb = [...database, ...newPackages];
+                setDatabase(mergedDb);
+                showToast(`${newPackages.length}개의 새 항목을 병합했습니다.`, 'success');
+            } else if (mode === 'replace') {
+                setDatabase(importedData);
+                showToast(`데이터베이스를 교체했습니다. (${importedData.length}개 항목)`, 'success');
+            }
+            setImportModalState({ isOpen: false, importedData: null });
+        };
+        
+        const handleImportCancel = () => {
+            setImportModalState({ isOpen: false, importedData: null });
+        };
+        
+        const filteredAndSortedDatabase = useMemo(() => {
+            return filterAndSortPackages({
+                packages: database,
+                filters,
+                comprehensive: comprehensiveSearch,
+                sortMethod
+            });
+        }, [database, filters, comprehensiveSearch, sortMethod]);
+
+        const renderContent = () => {
+            const placeholderProps = { className: 'placeholder' };
+            if (database.length === 0) {
+                return React.createElement('div', placeholderProps, '데이터베이스가 비어 있습니다. 첫 패키지를 계산하고 저장해보세요!');
+            }
+            if (filteredAndSortedDatabase.length === 0) {
+                return React.createElement('div', placeholderProps, '조건에 맞는 데이터가 없습니다.');
+            }
+            return React.createElement('div', { className: 'table-container'}, React.createElement('table', { className: 'db-table' },
+                React.createElement('thead', null, React.createElement('tr', null,
+                    React.createElement('th', null, '이미지'),
+                    React.createElement('th', null, '패키지명'),
+                    React.createElement('th', null, '가격'),
+                    React.createElement('th', null, '판매일'),
+                    React.createElement('th', null, '구성품'),
+                    React.createElement('th', null, '총 주화 환산 가치'),
+                    React.createElement('th', null, '효율'),
+                    React.createElement('th', null, '작업'),
+                )),
+                React.createElement('tbody', null, filteredAndSortedDatabase.map(pkg => {
+                    const efficiencyText = formatEfficiency(pkg.efficiency);
+                    let efficiencyClass = '';
+                    if (pkg.efficiency === Infinity) {
+                        efficiencyClass = 'efficiency-max';
+                    } else if (pkg.efficiency >= 100) {
+                        efficiencyClass = 'efficiency-good';
+                    } else if (pkg.efficiency < 100) {
+                        efficiencyClass = 'efficiency-bad';
+                    }
+                    
+                    const tdProps = { className: 'items-cell' };
+
+                    return React.createElement('tr', { key: pkg.id },
+                        React.createElement('td', null, pkg.image 
+                            ? React.createElement('img', {src: pkg.image, alt: pkg.name, className: 'db-image'}) 
+                            : 'N/A'
+                        ),
+                        React.createElement('td', null, pkg.name || '-'),
+                        React.createElement('td', null, `${formatNumber(pkg.priceAmount)} ${PRICE_CURRENCIES[pkg.priceCurrency]}`),
+                        React.createElement('td', null, pkg.saleDate),
+                        React.createElement('td', tdProps, React.createElement(PackageContents, { items: pkg.items, nonQuantifiableItems: pkg.nonQuantifiableItems })),
+                        React.createElement('td', null, formatNumber(pkg.totalJuhwaValue)),
+                        React.createElement('td', { className: efficiencyClass }, efficiencyText),
+                        React.createElement('td', null, React.createElement('button', { className: 'button button-danger', onClick: () => handleDeleteClick(pkg.id) }, '삭제'))
+                    )
+                }))
+            ));
+        }
+
+        return React.createElement('div', { className: 'card' },
+            React.createElement(ConfirmModal, {
+                isOpen: modalState.isOpen,
+                message: '정말로 이 항목을 삭제하시겠습니까?',
+                onConfirm: handleConfirmDelete,
+                onCancel: handleCancelDelete
+            }),
+            React.createElement(ImportConfirmModal, {
+                isOpen: importModalState.isOpen,
+                onMerge: () => handleImportConfirm('merge'),
+                onReplace: () => handleImportConfirm('replace'),
+                onCancel: handleImportCancel
+            }),
+            React.createElement('input', {
+                type: 'file',
+                ref: importFileRef,
+                onChange: handleFileSelected,
+                style: { display: 'none' },
+                accept: '.json,application/json'
+            }),
+            React.createElement('div', { className: 'db-header' },
+                React.createElement('h2', null, '패키지 데이터베이스'),
+                React.createElement('div', { className: 'db-actions' },
+                    React.createElement('button', { className: 'button button-outline', onClick: handleImportClick }, '가져오기'),
+                    React.createElement('button', { className: 'button button-outline', onClick: handleExport }, '내보내기'),
+                    React.createElement(SortControls, { sortMethod, setSortMethod })
+                )
+            ),
+            React.createElement('div', { className: 'form-group filter-controls-container' },
+                React.createElement(FilterControls, {
+                    filters,
+                    onFilterChange: handleFilterChange,
+                    comprehensiveSearch,
+                    onComprehensiveSearchChange: handleComprehensiveSearchChange
+                })
+            ),
+            renderContent()
+        );
+    };
+
+    const PackageInputCard = ({ 
+        name, setName, priceAmount, setPriceAmount, priceCurrency, setPriceCurrency, 
+        saleDate, setSaleDate, saleDateType, setSaleDateType,
+        items, handleAddItem, handleRemoveItem, handleItemChange, 
+        nonQuantifiableItems, setNonQuantifiableItems, handleCalculate,
+        image, onImageSelect, imageInputRef, itemsListRef
+    }) => {
+        const handleSaleDateTypeClick = (type) => {
+            setSaleDateType(prev => (prev === type ? 'date' : type));
+        };
+
+        const cardProps = { className: 'card' };
+        return React.createElement('div', cardProps,
+            React.createElement('h2', null, '패키지 정보 입력'),
+            React.createElement('div', { className: 'form-grid' },
+                // --- 필수 항목 ---
+                React.createElement('div', { className: 'form-group' },
+                    React.createElement('label', null, '가격'),
+                     React.createElement('div', { className: 'item-row' },
+                        React.createElement('input', { type: 'number', className: 'input', value: priceAmount, onChange: e => setPriceAmount(e.target.value), placeholder: '예: 1000' }),
+                        (() => {
+                            const selectProps = { className: 'select', value: priceCurrency, onChange: e => setPriceCurrency(e.target.value) };
+                            return React.createElement('select', selectProps,
+                                Object.entries(PRICE_CURRENCIES).map(([key, text]) => React.createElement('option', { key, value: key }, text))
+                            );
+                        })()
+                     )
+                ),
+                React.createElement('div', { className: 'form-group' },
+                    React.createElement('label', null, '가치 계산 가능 구성품'),
+                    React.createElement('div', { className: 'item-list', ref: itemsListRef },
+                        items.map((item) => {
+                            const isInvalid = item.quantity !== '' && parseFloat(item.quantity) <= 0;
+                            return React.createElement('div', { key: item.id, className: 'item-row', 'data-item-id': item.id },
+                                React.createElement('select', { className: 'select', value: item.type, onChange: e => handleItemChange(item.id, 'type', e.target.value) },
+                                    Object.entries(CURRENCY_ITEMS).map(([key, text]) => React.createElement('option', { key, value: key }, text))
+                                ),
+                                React.createElement('input', { 
+                                    type: 'number', 
+                                    className: `input ${isInvalid ? 'input-invalid' : ''}`, 
+                                    value: item.quantity, 
+                                    onChange: e => handleItemChange(item.id, 'quantity', e.target.value), 
+                                    placeholder: '수량'
+                                }),
+                                items.length > 1 ? React.createElement('button', { className: 'button button-danger', onClick: () => handleRemoveItem(item.id) }, 'X') : null
+                            );
+                        }),
+                        React.createElement('button', { className: 'button', onClick: handleAddItem, style:{marginTop:'0.5rem'} }, '+ 구성품 추가')
+                    )
+                ),
+
+                React.createElement('div', { className: 'section-divider', role: 'separator' }),
+
+                // --- 선택 항목 ---
+                React.createElement('div', { className: 'form-group' },
+                    React.createElement('label', null, '계산 불가능 구성물 (선택)'),
+                    React.createElement('input', { type: 'text', className: 'input', value: nonQuantifiableItems, onChange: e => setNonQuantifiableItems(e.target.value), placeholder: '예: 각성 선택권 등' })
+                ),
+                React.createElement('div', { className: 'form-group' },
+                    React.createElement('label', null, '패키지 이름 (선택)'),
+                    React.createElement('input', { type: 'text', className: 'input', value: name, onChange: e => setName(e.target.value), placeholder: '예: 월간 주화 패키지' })
+                ),
+                React.createElement('div', { className: 'form-group' },
+                    React.createElement('label', null, '판매 날짜 (선택)'),
+                    React.createElement('div', { className: 'input-with-buttons' },
+                        saleDateType === 'date' && React.createElement('input', {
+                            type: 'date',
+                            className: 'input',
+                            value: saleDate,
+                            onChange: e => setSaleDate(e.target.value)
+                        }),
+                        React.createElement('button', {
+                            className: `button button-outline ${saleDateType === 'permanent' ? 'active' : ''}`,
+                            onClick: () => handleSaleDateTypeClick('permanent')
+                        }, '상시'),
+                        React.createElement('button', {
+                            className: `button button-outline ${saleDateType === 'semi-permanent' ? 'active' : ''}`,
+                            onClick: () => handleSaleDateTypeClick('semi-permanent')
+                        }, '준상시')
+                    )
+                ),
+                 React.createElement('div', { className: 'form-group' },
+                    React.createElement('label', null, '패키지 이미지 (선택)'),
+                    React.createElement('input', {
+                        type: 'file',
+                        className: 'input',
+                        accept: 'image/*',
+                        onChange: onImageSelect,
+                        ref: imageInputRef
+                    }),
+                    image && React.createElement('img', {
+                        src: image,
+                        alt: 'Package Preview',
+                        className: 'image-preview'
+                    })
+                )
+            ),
+            React.createElement('button', { className: 'button button-primary', style: {marginTop: '1.5rem'}, onClick: handleCalculate }, '효율 계산하기')
+        );
+    };
+
+    const AnalysisResultCard = ({ result, dirty, nonQuantifiableItems, handleSaveToDb, isSaving }) => {
+        if (!result) {
+            return React.createElement('div', { className: 'card' },
+                React.createElement('h2', null, '분석 결과'),
+                React.createElement('div', { className: 'placeholder' }, '패키지 정보를 입력하고 "효율 계산하기"를 눌러주세요.')
+            );
+        }
+        
+        if (dirty) {
+            return React.createElement('div', { className: 'card' },
+                React.createElement('h2', null, '분석 결과'),
+                React.createElement('div', { className: 'placeholder' }, '입력값이 변경되었습니다. 다시 계산해주세요.')
+            );
+        }
+
+        let efficiencyText, efficiencyClass = '';
+        efficiencyText = formatEfficiency(result.efficiency);
+        if (result.efficiency === Infinity) {
+             efficiencyClass = 'efficiency-max';
+        } else if (result.efficiency >= 100) {
+            efficiencyClass = 'efficiency-good';
+        } else {
+            efficiencyClass = 'efficiency-bad';
+        }
+
+        return React.createElement('div', { className: 'card' },
+            React.createElement('h2', null, '분석 결과'),
+            React.createElement('div', { className: 'results-card' },
+                React.createElement('div', { className: 'result-item' },
+                    React.createElement('span', null, '총 주화 환산 가치'),
+                    React.createElement('span', null, `${formatNumber(result.totalItemValueInJuhwa)} 주화`)
+                ),
+                React.createElement('div', { className: 'result-item' },
+                    React.createElement('span', null, '정가 대비 효율'),
+                    React.createElement('span', { className: efficiencyClass }, efficiencyText)
+                ),
+                nonQuantifiableItems.trim() && React.createElement('div', { className: 'result-item' },
+                     React.createElement('span', null,
+                        '\'',
+                        React.createElement('span', { className: 'non-quantifiable-item-text' }, nonQuantifiableItems),
+                        '\'의 실 구매가'
+                    ),
+                    React.createElement('span', null, `${formatNumber(result.nonQuantifiableValue)} 주화`)
+                ),
+                React.createElement('button', { 
+                    className: 'button', 
+                    style: {marginTop: '1.5rem'}, 
+                    onClick: handleSaveToDb,
+                    disabled: isSaving
+                }, isSaving ? '저장 중...' : 'DB에 저장')
+            )
+        );
+    };
+
+    const RelatedPackagesCard = ({ 
+        result, dirty, relatedPackages, 
+        relatedFilters, handleFilterChange, 
+        comprehensiveSearch, handleComprehensiveSearchChange,
+        sortMethod, setSortMethod
+    }) => {
+        const itemContainerStyle = { marginTop: '1rem' };
+        const headerStyle = { border: 'none', marginBottom: 0 };
+        const placeholderWithPaddingStyle = { padding: '1rem' };
+
+        return React.createElement('div', { className: 'card' },
+            React.createElement('div', { className: 'related-package-header' },
+                React.createElement('h2', { style: headerStyle }, '연관 패키지 분석'),
+                React.createElement(SortControls, { sortMethod, setSortMethod })
+            ),
+            (!result || dirty)
+                ? React.createElement('div', { className: 'placeholder' }, '계산 후 여기에 유사한 패키지가 표시됩니다.')
+                : React.createElement('div', null,
+                     React.createElement('div', { className: 'form-group filter-controls-container', style: itemContainerStyle },
+                        React.createElement(FilterControls, {
+                            filters: relatedFilters,
+                            onFilterChange: handleFilterChange,
+                            comprehensiveSearch,
+                            onComprehensiveSearchChange: handleComprehensiveSearchChange
+                        })
+                    ),
+                    React.createElement('div', { className: 'item-list', style: itemContainerStyle },
+                        relatedPackages.length > 0
+                            ? relatedPackages.map(pkg => {
+                                let efficiencyComparisonEl = null;
+                                if (result !== null) {
+                                    if (pkg.efficiency > result.efficiency) {
+                                        efficiencyComparisonEl = React.createElement('span', { className: 'efficiency-higher' }, '(효율 높음)');
+                                    } else if (pkg.efficiency < result.efficiency) {
+                                        efficiencyComparisonEl = React.createElement('span', { className: 'efficiency-lower' }, '(효율 낮음)');
+                                    }
+                                }
+                                
+                                let efficiencyBadgeClass = '';
+                                if (pkg.efficiency === Infinity) {
+                                    efficiencyBadgeClass = 'efficiency-max';
+                                } else if (pkg.efficiency >= 100) {
+                                    efficiencyBadgeClass = 'efficiency-good';
+                                } else if (pkg.efficiency < 100) {
+                                    efficiencyBadgeClass = 'efficiency-bad';
+                                }
+                                
+                                const spanProps = { className: efficiencyBadgeClass };
+                                const pProps = { className: 'items-cell' };
+
+                                return React.createElement('div', { key: pkg.id, className: 'related-package-item' },
+                                    pkg.image && React.createElement('img', { src: pkg.image, alt: pkg.name, className: 'related-package-image' }),
+                                    React.createElement('div', { className: 'related-package-content' },
+                                        React.createElement('div', { className: 'result-item' },
+                                            React.createElement('h4', null,
+                                                pkg.name,
+                                                efficiencyComparisonEl ? ' ' : null,
+                                                efficiencyComparisonEl
+                                            ),
+                                            React.createElement('span', spanProps, formatEfficiency(pkg.efficiency))
+                                        ),
+                                        React.createElement('p', pProps,
+                                            `${pkg.saleDate} | `,
+                                            React.createElement(PackageContents, { key: 'contents', items: pkg.items, nonQuantifiableItems: pkg.nonQuantifiableItems })
+                                        )
+                                    )
+                                );
+                            })
+                            : React.createElement('p', { className: 'placeholder', style: placeholderWithPaddingStyle }, '일치하는 패키지가 없습니다.')
+                    )
+                )
+        );
+    };
+
+
+    const CalculatorView = ({ rates, database, addPackageToDb, showToast }) => {
+        // Input state
+        const [name, setName] = useState('');
+        const [priceAmount, setPriceAmount] = useState('');
+        const [priceCurrency, setPriceCurrency] = useState('juhwa');
+        const [items, setItems] = useState([{ id: generateId(), type: 'juhwa', quantity: '' }]);
+        const [nonQuantifiableItems, setNonQuantifiableItems] = useState('');
+        const [saleDate, setSaleDate] = useState(new Date().toISOString().slice(0, 10));
+        const [saleDateType, setSaleDateType] = useState('date'); // 'date', 'permanent', 'semi-permanent'
+        const [image, setImage] = useState(null);
+        const imageInputRef = useRef(null);
+        const itemsListRef = useRef(null);
+        
+        // Result and related packages state
+        const [result, setResult] = useState(null);
+        const [dirty, setDirty] = useState(true);
+        const [isSaving, setIsSaving] = useState(false);
+        const [relatedPackages, setRelatedPackages] = useState([]);
+        const [relatedFilters, setRelatedFilters] = useState({});
+        const [comprehensiveSearch, setComprehensiveSearch] = useState(false);
+        const [sortMethod, setSortMethod] = useState('efficiency');
+        
+        useEffect(() => {
+            setDirty(true);
+        }, [name, priceAmount, priceCurrency, items, nonQuantifiableItems, saleDate, saleDateType, image]);
+
+        const handleAddItem = useCallback(() => {
+            const lastItem = items[items.length - 1];
+            const newItemType = lastItem ? lastItem.type : 'juhwa';
+            const newItemId = generateId();
+            
+            const newItem = { id: newItemId, type: newItemType, quantity: '' };
+            setItems(prevItems => [...prevItems, newItem]);
+
+            // Wait for the DOM to update, then scroll and focus
+            setTimeout(() => {
+                if (itemsListRef.current) {
+                    const newItemElement = itemsListRef.current.querySelector(`[data-item-id="${newItemId}"]`);
+                    if (newItemElement) {
+                        newItemElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                        const input = newItemElement.querySelector('input[type="number"]');
+                        if (input) {
+                            input.focus();
+                        }
+                    }
+                }
+            }, 0);
+        }, [items]);
+
+        const handleRemoveItem = (id) => {
+            setItems(items.filter(item => item.id !== id));
+        };
+        const handleItemChange = (id, field, value) => {
+            setItems(items.map(item => item.id === id ? { ...item, [field]: value } : item));
+        };
+
+        const handleImageSelect = async (evt) => {
+            const file = evt.target.files[0];
+            if (file) {
+                try {
+                    if (!name.trim()) {
+                        const fileName = file.name;
+                        const lastDot = fileName.lastIndexOf('.');
+                        const fileNameWithoutExt = (lastDot === -1) ? fileName : fileName.substring(0, lastDot);
+                        setName(fileNameWithoutExt);
+                    }
+                    const resizedImage = await resizeImage(file, 150, 300, 0.7);
+                    setImage(resizedImage);
+                } catch (error) {
+                    console.error("Image resize error:", error);
+                    showToast("이미지를 처리하는 중 오류가 발생했습니다.", "error");
+                }
+            }
+        };
+
+        const handleCalculate = () => {
+            const parsedItems = items
+                .map(i => ({...i, quantity: parseFloat(i.quantity)}))
+                .filter(i => !isNaN(i.quantity) && i.quantity > 0);
+                
+            if (parsedItems.length === 0 && !nonQuantifiableItems.trim()) {
+                showToast('계산할 구성품을 하나 이상 입력해주세요.', 'error');
+                return;
+            }
+
+            const price = { priceAmount: parseFloat(priceAmount) || 0, priceCurrency };
+            
+            if (price.priceAmount < 0) {
+                showToast('가격은 0 이상이어야 합니다.', 'error');
+                return;
+            }
+            
+            const priceInJuhwa = calculateJuhwaValue(price, rates);
+            const totalItemValueInJuhwa = parsedItems.reduce((sum, item) => sum + calculateJuhwaValue(item, rates), 0);
+            
+            const efficiency = priceInJuhwa > 0 
+                ? (totalItemValueInJuhwa / priceInJuhwa) * 100 
+                : (totalItemValueInJuhwa > 0 ? Infinity : 0);
+            
+            const nonQuantifiableValue = Math.max(0, priceInJuhwa - totalItemValueInJuhwa);
+
+            setResult({
+                parsedItems,
+                totalItemValueInJuhwa,
+                efficiency,
+                nonQuantifiableValue,
+                priceInJuhwa,
+            });
+
+            const itemsInPackage = new Set(parsedItems.map(item => item.type));
+            const initialFilters = Object.keys(CURRENCY_ITEMS).reduce((acc, type) => {
+                acc[type] = itemsInPackage.has(type);
+                return acc;
+            }, {});
+            setRelatedFilters(initialFilters);
+            setDirty(false);
+        };
+        
+        const handleSaveToDb = () => {
+            if (!result || dirty || isSaving) {
+                if (!result) showToast('먼저 계산을 실행해주세요.', 'error');
+                if (dirty) showToast('입력값이 변경되었습니다. 다시 계산 후 저장해주세요.', 'error');
+                return;
+            }
+            
+            setIsSaving(true);
+
+            try {
+                const finalSaleDate = saleDateType === 'date'
+                    ? saleDate
+                    : (saleDateType === 'permanent' ? '상시' : '준상시');
+
+                const newPackage = {
+                    id: generateId(),
+                    name,
+                    priceAmount: parseFloat(priceAmount) || 0,
+                    priceCurrency,
+                    saleDate: finalSaleDate,
+                    items: result.parsedItems,
+                    nonQuantifiableItems,
+                    totalJuhwaValue: result.totalItemValueInJuhwa,
+                    efficiency: result.efficiency,
+                    image,
+                };
+                addPackageToDb(newPackage);
+                showToast('패키지가 데이터베이스에 저장되었습니다.');
+
+                // Reset form for next entry
+                setName('');
+                setPriceAmount('');
+                setPriceCurrency('juhwa');
+                setItems([{ id: generateId(), type: 'juhwa', quantity: '' }]);
+                setNonQuantifiableItems('');
+                setSaleDate(new Date().toISOString().slice(0, 10));
+                setSaleDateType('date');
+                setImage(null);
+                if (imageInputRef.current) {
+                    imageInputRef.current.value = null;
+                }
+                setResult(null);
+                setRelatedPackages([]);
+                setRelatedFilters({});
+                setComprehensiveSearch(false);
+                setDirty(true);
+            } catch (error) {
+                if (error.name === 'QuotaExceededError') {
+                     showToast('저장 공간이 가득 찼습니다. 데이터베이스에서 오래된 항목을 삭제해주세요.', 'error');
+                } else {
+                    showToast('데이터 저장에 실패했습니다. 콘솔을 확인해주세요.', 'error');
+                    console.error("Failed to save to DB:", error);
+                }
+            } finally {
+                setIsSaving(false);
+            }
+        };
+
+        const handleFilterChange = useCallback((type) => {
+            setRelatedFilters(prev => ({...prev, [type]: !prev[type]}));
+        }, []);
+
+        const handleComprehensiveSearchChange = useCallback(() => {
+            setComprehensiveSearch(prev => !prev);
+        }, []);
+
+        useEffect(() => {
+            if (!result || dirty) {
+                if(relatedPackages.length > 0) setRelatedPackages([]);
+                return;
+            };
+            
+            const sorted = filterAndSortPackages({
+                packages: database,
+                filters: relatedFilters,
+                comprehensive: comprehensiveSearch,
+                sortMethod
+            });
+            setRelatedPackages(sorted);
+
+        }, [result, dirty, relatedFilters, database, sortMethod, comprehensiveSearch]);
+        
+        return React.createElement('div', { className: 'calculator-view' },
+            React.createElement(PackageInputCard, {
+                name, setName, priceAmount, setPriceAmount, priceCurrency, setPriceCurrency,
+                saleDate, setSaleDate, saleDateType, setSaleDateType,
+                items, handleAddItem, handleRemoveItem, handleItemChange,
+                nonQuantifiableItems, setNonQuantifiableItems, handleCalculate,
+                image, onImageSelect: handleImageSelect, imageInputRef, itemsListRef
+            }),
+            React.createElement(AnalysisResultCard, { result, dirty, nonQuantifiableItems, handleSaveToDb, isSaving }),
+            React.createElement(RelatedPackagesCard, { 
+                result, dirty, relatedPackages, 
+                relatedFilters, handleFilterChange, 
+                comprehensiveSearch, handleComprehensiveSearchChange, 
+                sortMethod, setSortMethod
+            })
+        );
+    };
+
+
+    // --- Main App Component ---
+    function App() {
+        const [currentView, setCurrentView] = useState('calculator');
+        const [rates, setRates] = useLocalStorage('cs-calc-rates', DEFAULT_RATES);
+        const [database, setDatabase] = useLocalStorage('cs-calc-db', []);
+        const [isInitializing, setIsInitializing] = useState(true);
+        const [toast, setToast] = useState(null);
+        const [isUpdatingDb, setIsUpdatingDb] = useState(false);
+        const toastTimerRef = useRef(null);
+        
+        const showToast = useCallback((message, type = 'success', duration = 3000) => {
+            if (toastTimerRef.current) {
+                clearTimeout(toastTimerRef.current);
+            }
+            setToast({ message, type });
+            if (duration !== null) {
+                toastTimerRef.current = setTimeout(() => {
+                    setToast(null);
+                    toastTimerRef.current = null;
+                }, duration);
+            }
+        }, []);
+        
+        const dismissToast = () => {
+            if (toastTimerRef.current) {
+                clearTimeout(toastTimerRef.current);
+                toastTimerRef.current = null;
+            }
+            setToast(null);
+        };
+
+        // Initial database loading
+        useEffect(() => {
+            const initializeDatabase = async () => {
+                const localDbRaw = window.localStorage.getItem('cs-calc-db');
+                if (localDbRaw === null) { // Key doesn't exist, it's a first-time visit
+                    showToast('초기 데이터베이스를 불러옵니다...', 'info', null);
+                    try {
+                        const response = await fetch('./database.json'); // Fetches from the public folder
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        const initialData = await response.json();
+                        setDatabase(initialData);
+                        dismissToast();
+                        showToast('초기 데이터베이스를 성공적으로 불러왔습니다.', 'success');
+                    } catch (error) {
+                        console.error("Failed to fetch initial database:", error);
+                        dismissToast();
+                        showToast('초기 데이터베이스를 불러오는데 실패했습니다.', 'error');
+                        setDatabase([]); // Fallback to an empty array
+                    }
+                }
+                setIsInitializing(false);
+            };
+            initializeDatabase();
+        }, []); // Empty dependency array, runs only once on mount
+
+        const addPackageToDb = useCallback((newPackage) => {
+            setDatabase(prevDb => {
+                const newDb = [newPackage, ...prevDb];
+                return newDb.sort((a, b) => getSortableDate(b.saleDate) - getSortableDate(a.saleDate));
+            });
+        }, [setDatabase]);
+
+        const handleRatesUpdate = useCallback((newRates) => {
+            if (newRates.krwPerJuhwa <= 0 || newRates.quartzPerJuhwa <= 0) {
+                showToast('주요 환율(KRW, 쿼츠) 값은 0보다 커야 합니다.', 'error');
+                return;
+            }
+            
+            setIsUpdatingDb(true);
+            showToast('데이터베이스를 업데이트하는 중...', 'info', null);
+
+            setTimeout(() => {
+                try {
+                    setRates(newRates);
+                    setDatabase(prevDb => {
+                        return prevDb.map(pkg => {
+                            const priceInJuhwa = calculateJuhwaValue(
+                                { priceAmount: pkg.priceAmount, priceCurrency: pkg.priceCurrency },
+                                newRates
+                            );
+                            const totalItemValueInJuhwa = pkg.items.reduce(
+                                (sum, item) => sum + calculateJuhwaValue(item, newRates), 0
+                            );
+                            
+                            const efficiency = priceInJuhwa > 0 
+                                ? (totalItemValueInJuhwa / priceInJuhwa) * 100 
+                                : (totalItemValueInJuhwa > 0 ? Infinity : 0);
+
+                            return {
+                                ...pkg,
+                                totalJuhwaValue: totalItemValueInJuhwa,
+                                efficiency: efficiency,
+                            };
+                        });
+                    });
+                    dismissToast();
+                    showToast('설정이 저장되었으며, 데이터베이스가 새로운 환율로 업데이트되었습니다.');
+                } catch(error) {
+                    if (error.name === 'QuotaExceededError') {
+                         showToast('저장 공간 부족으로 설정을 업데이트할 수 없습니다.', 'error');
+                    } else {
+                        showToast('설정 업데이트에 실패했습니다. 콘솔을 확인해주세요.', 'error');
+                        console.error("Failed to update settings:", error);
+                    }
+                } finally {
+                    setIsUpdatingDb(false);
+                    if (toast && toast.type === 'info') {
+                        dismissToast();
+                    }
+                }
+            }, 50);
+        }, [rates, setRates, setDatabase, showToast, toast]);
+
+        const renderView = () => {
+            switch (currentView) {
+                case 'calculator':
+                    return React.createElement(CalculatorView, { rates, database, addPackageToDb, showToast });
+                case 'database':
+                    return React.createElement(DatabaseView, { database, setDatabase, showToast });
+                case 'settings':
+                    return React.createElement(SettingsView, { rates, onSave: handleRatesUpdate, isUpdatingDb });
+                default:
+                    return React.createElement(CalculatorView, { rates, database, addPackageToDb, showToast });
+            }
+        };
+        
+        if (isInitializing) {
+            return React.createElement('div', {
+                className: 'placeholder',
+                style: {
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    height: 'calc(100vh - 2rem)',
+                    fontSize: '1.2rem'
+                }
+            }, '데이터베이스를 불러오는 중입니다...');
+        }
+
+
+        return React.createElement('div', { className: 'app-container' },
+            React.createElement(Header, { currentView, setCurrentView }),
+            React.createElement('main', null, renderView()),
+            React.createElement(ToastContainer, { toast, onDismiss: dismissToast })
+        );
+    }
+
+    if (typeof window.csCalcAppInitialized === 'undefined') {
+        window.csCalcAppInitialized = true;
+        const container = document.getElementById('root');
+        if (container) {
+            const root = ReactDOM.createRoot(container);
+            root.render(React.createElement(App));
+        }
+    }
+    
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./service-worker.js').then(registration => {
+                console.log('SW registered: ', registration);
+            }).catch(registrationError => {
+                console.log('SW registration failed: ', registrationError);
+            });
+        });
+    }
+  </script>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>
